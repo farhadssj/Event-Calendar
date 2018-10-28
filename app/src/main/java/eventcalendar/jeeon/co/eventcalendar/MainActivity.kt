@@ -1,9 +1,16 @@
 package eventcalendar.jeeon.co.eventcalendar
 
+import android.content.Context
 import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.app.AlertDialog
+import android.transition.TransitionManager
+import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.View
+import android.widget.LinearLayout
+import android.widget.PopupWindow
 import kotlinx.android.synthetic.main.activity_main.*
 import java.time.format.TextStyle
 import java.util.*
@@ -28,51 +35,55 @@ class MainActivity : AppCompatActivity() {
         updateDayDateView()
         //set button click listener
         forwardButton.setOnClickListener{
-            calendar?.add(Calendar.WEEK_OF_YEAR, 1);
+            calendar?.add(Calendar.WEEK_OF_YEAR, 1)
             selectedWeekNumber = selectedWeekNumber?.plus(1)
             //update day date
             updateDayDateView()
         }
         backButton.setOnClickListener{
-            calendar?.add(Calendar.WEEK_OF_YEAR, -1);
+            calendar?.add(Calendar.WEEK_OF_YEAR, -1)
             selectedWeekNumber = selectedWeekNumber?.minus(1)
             //update day date
             updateDayDateView()
         }
         sunDayDateTextView.setOnClickListener {
-            selectedDayNumber = 1;
+            selectedDayNumber = 1
             //update day date
             updateDayDateView()
         }
         monDayDateTextView.setOnClickListener {
-            selectedDayNumber = 2;
+            selectedDayNumber = 2
             //update day date
             updateDayDateView()
         }
         tueDayDateTextView.setOnClickListener {
-            selectedDayNumber = 3;
+            selectedDayNumber = 3
             //update day date
             updateDayDateView()
         }
         wedDayDateTextView.setOnClickListener {
-            selectedDayNumber = 4;
+            selectedDayNumber = 4
             //update day date
             updateDayDateView()
         }
         thuDayDateTextView.setOnClickListener {
-            selectedDayNumber = 5;
+            selectedDayNumber = 5
             //update day date
             updateDayDateView()
         }
         friDayDateTextView.setOnClickListener {
-            selectedDayNumber = 6;
+            selectedDayNumber = 6
             //update day date
             updateDayDateView()
         }
         satDayDateTextView.setOnClickListener {
-            selectedDayNumber = 7;
+            selectedDayNumber = 7
             //update day date
             updateDayDateView()
+        }
+
+        addActionButton.setOnClickListener{
+            showEventPopView()
         }
 
     }
@@ -125,5 +136,26 @@ class MainActivity : AppCompatActivity() {
         monthTextView.setText(calendar?.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.US)+" "+calendar?.get(Calendar.YEAR))
 
 
+    }
+
+
+    fun showEventPopView() {
+        val inflater:LayoutInflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        //inflate a custom view
+        val view = inflater.inflate(R.layout.event_popup_layout, null)
+
+        val builder = AlertDialog.Builder(this)
+        builder.setView(view)
+        //set ok button
+        builder.setPositiveButton(android.R.string.ok){dialogInterface, i ->
+            //save event
+        }
+        //set cancel button
+        builder.setNegativeButton(android.R.string.cancel){dialogInterface, i ->
+            dialogInterface.dismiss()
+        }
+        builder.setCancelable(false)
+        //show alert
+        builder.show()
     }
 }
