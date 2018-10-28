@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="month_name_text_size">18sp</dimen>
+
+    <dimen name="month_name_top_margin">10dp</dimen>
+    <dimen name="standard_size">16dp</dimen>
+</resources>
