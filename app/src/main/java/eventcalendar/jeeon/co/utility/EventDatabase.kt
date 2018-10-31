@@ -1,38 +1,17 @@
 package eventcalendar.jeeon.co.utility
 
+import android.arch.persistence.db.SupportSQLiteDatabase
 import android.arch.persistence.room.Database
 import android.arch.persistence.room.Room
 import android.arch.persistence.room.RoomDatabase
 import android.content.Context
+import kotlinx.coroutines.experimental.CoroutineScope
+import kotlinx.coroutines.experimental.Dispatchers
+import kotlinx.coroutines.experimental.launch
 import kotlin.jvm.java
 
 @Database(entities = [Event::class], version = 1)
 abstract class EventDatabase : RoomDatabase() {
-
-//    abstract val eventDao: EventDAO
-//
-//    fun cleanUp() {
-//        eventDB = null
-//    }
-//
-//    companion object {
-//
-//        private var eventDB: EventDatabase? = null
-//
-//        fun getInstance(context: Context): EventDatabase {
-//            if (null == eventDB) {
-//                eventDB = buildDatabaseInstance(context)
-//            }
-//            return eventDB
-//        }
-//
-//        private fun buildDatabaseInstance(context: Context): EventDatabase {
-//            return Room.databaseBuilder<EventDatabase>(context,
-//                    EventDatabase::class.java!!,
-//                    Constants.DB_NAME)
-//                    .allowMainThreadQueries().build()
-//        }
-//    }
 
     abstract fun eventDAO(): EventDAO
 
@@ -40,7 +19,7 @@ abstract class EventDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: EventDatabase? = null
 
-        fun getDatabase(context: Context): EventDatabase {
+        fun getDatabase(context: Context, scope: CoroutineScope): EventDatabase {
             val tempInstance = INSTANCE
             if (tempInstance != null) {
                 return tempInstance
@@ -50,9 +29,21 @@ abstract class EventDatabase : RoomDatabase() {
                         context,
                         EventDatabase::class.java,
                         "event_database"
-                ).build()
+                ).addCallback(EventDatabaseCallback(scope)).build()
                 INSTANCE = instance
                 return instance
+            }
+        }
+    }
+
+    private class EventDatabaseCallback(
+            private val scope: CoroutineScope
+    ) : RoomDatabase.Callback() {
+
+        override fun onOpen(db: SupportSQLiteDatabase) {
+            super.onOpen(db)
+            INSTANCE?.let { database ->
+                scope.launch(Dispatchers.IO) {}
             }
         }
     }

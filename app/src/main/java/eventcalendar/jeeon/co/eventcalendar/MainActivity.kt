@@ -1,18 +1,24 @@
 package eventcalendar.jeeon.co.eventcalendar
 
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
+import android.support.v7.widget.LinearLayoutManager
 import android.transition.TransitionManager
 import android.view.Gravity
+import android.arch.lifecycle.Observer
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.PopupWindow
+import eventcalendar.jeeon.co.utility.Event
+import eventcalendar.jeeon.co.utility.EventListAdapter
+import eventcalendar.jeeon.co.utility.EventViewModel
 import kotlinx.android.synthetic.main.activity_main.*
-import java.time.format.TextStyle
+import kotlinx.android.synthetic.main.event_popup_layout.*
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -20,6 +26,9 @@ class MainActivity : AppCompatActivity() {
     private var calendar: Calendar ?= null
     private var selectedWeekNumber: Int  ?= null
     private var selectedDayNumber : Int  ?= null
+
+    private lateinit var eventViewModel: EventViewModel
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,7 +94,14 @@ class MainActivity : AppCompatActivity() {
         addActionButton.setOnClickListener{
             showEventPopView()
         }
+        val adapter = EventListAdapter(this)
+        eventRecyclerView.adapter = adapter
+        eventRecyclerView.layoutManager = LinearLayoutManager(this)
 
+        eventViewModel = ViewModelProviders.of(this).get(EventViewModel::class.java)
+        eventViewModel.allEvents.observe(this, Observer { events ->
+            events?.let { adapter.setEvents(it)}
+        })
     }
 
     fun updateDayDateView(): Unit {
@@ -149,6 +165,10 @@ class MainActivity : AppCompatActivity() {
         //set ok button
         builder.setPositiveButton(android.R.string.ok){dialogInterface, i ->
             //save event
+            if(titledEditText.text.length>0 && detailsEditText.text.length>0){
+                val event = Event(1, titledEditText.text.toString(), detailsEditText.text.toString())
+                saveEvent(event)
+            }
         }
         //set cancel button
         builder.setNegativeButton(android.R.string.cancel){dialogInterface, i ->
@@ -158,4 +178,9 @@ class MainActivity : AppCompatActivity() {
         //show alert
         builder.show()
     }
+
+    fun saveEvent(event: Event){
+        eventViewModel.insert(event)
+    }
 }
+

@@ -21,7 +21,7 @@ class EventViewModel(application: Application) : AndroidViewModel(application) {
     val allEvents: LiveData<List<Event>>
 
     init {
-        val eventsDao = EventDatabase.getDatabase(application).eventDAO()
+        val eventsDao = EventDatabase.getDatabase(application, scope).eventDAO()
         repository = EventRepository(eventsDao)
         allEvents = repository.allEvents
     }
