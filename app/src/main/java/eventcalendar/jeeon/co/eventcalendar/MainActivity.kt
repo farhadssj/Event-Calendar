@@ -14,6 +14,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.PopupWindow
+import android.widget.TextView
 import eventcalendar.jeeon.co.utility.Event
 import eventcalendar.jeeon.co.utility.EventListAdapter
 import eventcalendar.jeeon.co.utility.EventViewModel
@@ -160,13 +161,18 @@ class MainActivity : AppCompatActivity() {
         //inflate a custom view
         val view = inflater.inflate(R.layout.event_popup_layout, null)
 
+        val titleEditText : TextView = view.findViewById(R.id.titleEditText)
+        val detailsEditText: TextView = view.findViewById(R.id.detailsEditText)
+
         val builder = AlertDialog.Builder(this)
         builder.setView(view)
         //set ok button
         builder.setPositiveButton(android.R.string.ok){dialogInterface, i ->
             //save event
-            if(titledEditText.text.length>0 && detailsEditText.text.length>0){
-                val event = Event(1, titledEditText.text.toString(), detailsEditText.text.toString())
+            if(titleEditText.text.length>0 && detailsEditText.text.length>0){
+                //update month year textview
+                calendar?.set(Calendar.DAY_OF_WEEK, selectedDayNumber?:1)
+                val event = Event(0, titleEditText.text.toString(), detailsEditText.text.toString(), calendar?.timeInMillis)
                 saveEvent(event)
             }
         }

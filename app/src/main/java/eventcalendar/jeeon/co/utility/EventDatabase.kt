@@ -7,6 +7,7 @@ import android.arch.persistence.room.RoomDatabase
 import android.content.Context
 import kotlinx.coroutines.experimental.CoroutineScope
 import kotlinx.coroutines.experimental.Dispatchers
+import kotlinx.coroutines.experimental.IO
 import kotlinx.coroutines.experimental.launch
 import kotlin.jvm.java
 
