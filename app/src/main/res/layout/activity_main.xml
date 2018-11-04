@@ -198,7 +198,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="3dp"
-            android:background="@android:color/darker_gray"
             tools:listitem="@layout/each_event_item" />
     </RelativeLayout>
     <android.support.design.widget.FloatingActionButton

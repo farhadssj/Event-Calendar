@@ -10,6 +10,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.transition.TransitionManager
 import android.view.Gravity
 import android.arch.lifecycle.Observer
+import android.support.v7.widget.DividerItemDecoration
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
@@ -29,6 +30,7 @@ class MainActivity : AppCompatActivity() {
     private var selectedDayNumber : Int  ?= null
 
     private lateinit var eventViewModel: EventViewModel
+    private lateinit var adapter: EventListAdapter
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,8 +43,6 @@ class MainActivity : AppCompatActivity() {
         calendar?.clear(Calendar.MINUTE)
         calendar?.clear(Calendar.SECOND)
         calendar?.clear(Calendar.MILLISECOND)
-        //update day date
-        updateDayDateView()
         //set button click listener
         forwardButton.setOnClickListener{
             calendar?.add(Calendar.WEEK_OF_YEAR, 1)
@@ -95,14 +95,24 @@ class MainActivity : AppCompatActivity() {
         addActionButton.setOnClickListener{
             showEventPopView()
         }
-        val adapter = EventListAdapter(this)
+        eventRecyclerView.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
+        adapter = EventListAdapter(this, { eventItem : Event -> eventItemClicked(eventItem)})
         eventRecyclerView.adapter = adapter
         eventRecyclerView.layoutManager = LinearLayoutManager(this)
 
         eventViewModel = ViewModelProviders.of(this).get(EventViewModel::class.java)
         eventViewModel.allEvents.observe(this, Observer { events ->
-            events?.let { adapter.setEvents(it)}
+            events?.let {
+                calendar?.set(Calendar.DAY_OF_WEEK, selectedDayNumber?:1)
+                adapter.setEvents(it, calendar?.timeInMillis)
+            }
         })
+        //update day date
+        updateDayDateView()
+    }
+
+    private fun eventItemClicked(eventItem : Event) {
+        showEventUpdatePopView(eventItem)
     }
 
     fun updateDayDateView(): Unit {
@@ -151,8 +161,7 @@ class MainActivity : AppCompatActivity() {
         //update month year textview
         calendar?.set(Calendar.DAY_OF_WEEK, selectedDayNumber?:1)
         monthTextView.setText(calendar?.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.US)+" "+calendar?.get(Calendar.YEAR))
-
-
+        adapter.loadSelectedDayEvents(calendar?.timeInMillis)
     }
 
 
@@ -184,9 +193,51 @@ class MainActivity : AppCompatActivity() {
         //show alert
         builder.show()
     }
+    fun showEventUpdatePopView(event: Event) {
+        val inflater:LayoutInflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        //inflate a custom view
+        val view = inflater.inflate(R.layout.event_popup_layout, null)
+
+        val titleEditText : TextView = view.findViewById(R.id.titleEditText)
+        val detailsEditText: TextView = view.findViewById(R.id.detailsEditText)
+        titleEditText.setText(event.title);
+        detailsEditText.setText(event.details);
+        val builder = AlertDialog.Builder(this)
+        builder.setView(view)
+        //set update button
+        builder.setPositiveButton(R.string.update_text){dialogInterface, i ->
+            //udate event
+            if(titleEditText.text.length>0 && detailsEditText.text.length>0){
+                //update month year textview
+                calendar?.set(Calendar.DAY_OF_WEEK, selectedDayNumber?:1)
+                event.title = titleEditText.text.toString();
+                event.details = detailsEditText.text.toString();
+                updateEvent(event)
+            }
+        }
+        //set delete button
+        builder.setNegativeButton(R.string.delete_text){dialogInterface, i ->
+            deleteEvent(event)
+        }
+        //set cancel button
+        builder.setNeutralButton(android.R.string.cancel){dialogInterface, i ->
+            dialogInterface.dismiss()
+        }
+        builder.setCancelable(false)
+        //show alert
+        builder.show()
+    }
 
     fun saveEvent(event: Event){
         eventViewModel.insert(event)
+    }
+
+    fun updateEvent(event: Event){
+        eventViewModel.update(event)
+    }
+
+    fun deleteEvent(event: Event){
+        eventViewModel.delete(event)
     }
 }
 

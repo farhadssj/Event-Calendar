@@ -30,6 +30,13 @@ class EventViewModel(application: Application) : AndroidViewModel(application) {
         repository.insert(event)
     }
 
+    fun update(event: Event) = scope.launch(Dispatchers.IO) {
+        repository.update(event)
+    }
+
+    fun delete(event: Event) = scope.launch(Dispatchers.IO) {
+        repository.delete(event)
+    }
     override fun onCleared() {
         super.onCleared()
         parentJob.cancel()

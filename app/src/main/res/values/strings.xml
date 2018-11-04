@@ -2,4 +2,6 @@
     <string name="app_name">Event Calendar</string>
     <string name="title_text">Event Title</string>
     <string name="details_text">Event Details</string>
+    <string name="update_text">Update</string>
+    <string name="delete_text">Delete</string>
 </resources>
